@@ -8,6 +8,9 @@ whitenoise
 psycopg2
 pytz
 
+# third-party
+pillow
+
 # application server
 uwsgi
 
