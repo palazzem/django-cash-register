@@ -1,0 +1,8 @@
+[run]
+source = django-manager
+omit =
+    */migrations/*
+    */tests/*
+    django-manager/manage.py
+    django-manager/manager/wsgi.py
+    django-manager/manager/settings/production.py
