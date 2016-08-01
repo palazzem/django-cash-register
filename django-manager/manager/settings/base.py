@@ -101,6 +101,11 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
+# only one currency at a time is supported;
+# if you want to support different currencies, the
+# application design must be updated
+CURRENCIES = ('EUR',)
+
 # static files and media
 ASSETS_ROOT = env('DJANGO_ASSETS_ROOT', BASE_DIR)
 STATIC_HOST = env('DJANGO_STATIC_HOST', '')
