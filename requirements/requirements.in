@@ -2,6 +2,7 @@
 django
 django-getenv
 django-redis
+django-money
 dj-database-url
 whitenoise
 psycopg2
