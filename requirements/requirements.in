@@ -11,6 +11,7 @@ pytz
 
 # third-party
 pillow
+python-cash-register
 
 # application server
 uwsgi
