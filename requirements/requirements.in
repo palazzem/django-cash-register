@@ -3,6 +3,7 @@ django
 django-getenv
 django-redis
 django-money
+djangorestframework
 dj-database-url
 whitenoise
 psycopg2
