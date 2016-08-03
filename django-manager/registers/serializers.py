@@ -1,10 +1,11 @@
+from django.db import transaction
 from django.conf import settings
 
 from rest_framework import serializers
 
 from djmoney.contrib.django_rest_framework.fields import MoneyField
 
-from .models import Product
+from .models import Product, Recipe, Sell
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -48,3 +49,31 @@ class RecipeSerializer(serializers.Serializer):
     ``python-cash-register`` package
     """
     products = RecipeItemSerializer(many=True, allow_empty=False)
+
+    @transaction.atomic
+    def save(self):
+        """
+        Custom save() for serializer that creates the ``Recipe``, honoring
+        the ManyToMany relationship with ``Product`` (through the ``Sell``
+        model).
+
+        The creation pass through the following steps:
+            * a transaction is created
+            * the ``Recipe`` is created
+            * for each product in ``products``, create a ``Sell`` relationship
+              with ``Product``
+            * if the result is GOOD => commit the transaction
+            * if the result is BAD => rollback the transaction
+        """
+        # create an empty Recipe
+        recipe = Recipe.objects.create()
+        # add sold items to the Recipe
+        for item in self.validated_data['products']:
+            sell = Sell(
+                recipe=recipe,
+                product=item['id'],
+                quantity=item['quantity'],
+                price=item['price'],
+                price_currency=item['price_currency'],
+            )
+            sell.save()

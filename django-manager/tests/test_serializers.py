@@ -1,8 +1,10 @@
 import pytest
 
+from decimal import Decimal as D
+
 from model_mommy import mommy
 
-from registers.models import Product
+from registers.models import Product, Recipe
 from registers.serializers import ProductSerializer, RecipeItemSerializer, RecipeSerializer
 
 
@@ -102,8 +104,8 @@ class TestRecipe:
     @pytest.mark.django_db
     def test_recipe_serializer(self):
         """
-        Test the ``RecipeSerializer`` so that a list of products creates a new
-        ``Recipe`` object with bought items:
+        Test the ``RecipeSerializer`` so that a list of products in a ``Recipe``
+        instance are allowed:
             * create 3 random products
             * sell each product using different prices and quantities
             * the serializer must be valid
@@ -136,8 +138,8 @@ class TestRecipe:
     @pytest.mark.django_db
     def test_recipe_serializer_empty_list(self):
         """
-        Ensure that the ``RecipeSerializer`` doesn't create a ``Recipe`` object
-        if the list of products is empty.
+        Ensure that the ``RecipeSerializer`` isn't valid if the
+        list of products is empty.
         """
         # use the serializer with an empty list of products
         recipe = {
@@ -147,3 +149,56 @@ class TestRecipe:
         serializer = RecipeSerializer(data=recipe)
         assert serializer.is_valid() is False
         assert serializer.errors['products']['non_field_errors'][0] == 'This list may not be empty.'
+
+    @pytest.mark.django_db
+    def test_recipe_serializer_save(self):
+        """
+        Test the ``RecipeSerializer`` so that a list of products creates a new
+        ``Recipe`` object with bought items:
+            * create 3 random products
+            * sell each product using different prices and quantities
+            * the serializer must be saved
+            * the Recipe must be created
+            * each row of the recipe must be saved
+        """
+        # a list of product
+        products = mommy.make(Product, _quantity=3)
+        # products that are sold
+        recipe = {
+            'products': [
+                {
+                    'id': products[0].id,
+                    'price': '5.90',
+                },
+                {
+                    'id': products[1].id,
+                    'price': '2.00',
+                    'quantity': '2.0',
+                },
+                {
+                    'id': products[2].id,
+                    'price': '1.00',
+                    'quantity': '1.68',
+                },
+            ]
+        }
+        # check the serializer
+        serializer = RecipeSerializer(data=recipe)
+        # save the serializer
+        serializer.is_valid()
+        serializer.save()
+        # database checks
+        assert Recipe.objects.count() == 1
+        recipe = Recipe.objects.all()[0]
+        assert recipe.products.count() == 3
+        # products exists with the proper quantities and prices
+        sold_items = recipe.products.through.objects.all()
+        assert sold_items[0].product_id == products[0].id
+        assert sold_items[0].quantity == D('1.0')
+        assert sold_items[0].price.amount == D('5.90')
+        assert sold_items[1].product_id == products[1].id
+        assert sold_items[1].quantity == D('2.0')
+        assert sold_items[1].price.amount == D('2.00')
+        assert sold_items[2].product_id == products[2].id
+        assert sold_items[2].quantity == D('1.68')
+        assert sold_items[2].price.amount == D('1.00')
