@@ -22,14 +22,15 @@ class TestProduct:
 
     def test_optional_fields(self):
         """
-        Test the ``Product`` serializer
+        Test the ``Product`` serializer optinal fields:
+            * default_price_currency, defaults to 'EUR'
+            * icon is not mandatory
         """
         # a product without image
         product = {
             'id': 1,
             'name': 'Croissant',
             'default_price': '5.90',
-            'default_price_currency': 'EUR',
         }
         # check the serializer
         serializer = ProductSerializer(data=product)
