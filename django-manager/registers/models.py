@@ -35,6 +35,7 @@ class Recipe(models.Model):
     def __str__(self):
         sells_qs = self.products.through.objects.all()
         total = sells_qs.aggregate(total=Sum(F('price') * F('quantity')))['total']
+        total = total if total is not None else 0.0
         date = formats.date_format(self.date, 'DATETIME_FORMAT')
         return "Total: {} -- {}".format(total, date)
 
