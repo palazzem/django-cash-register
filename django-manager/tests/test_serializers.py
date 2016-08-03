@@ -202,3 +202,39 @@ class TestRecipe:
         assert sold_items[2].product_id == products[2].id
         assert sold_items[2].quantity == D('1.68')
         assert sold_items[2].price.amount == D('1.00')
+
+    @pytest.mark.django_db
+    def test_recipe_serializer_save_rollback(self):
+        """
+        Ensure that ``RecipeSerializer`` does a rollback if something goes
+        wrong during the ``Recipe`` creation. This tests raises an exception
+        because the save() method cannot be called before is_valid(); even
+        if the tests seems not related with the bug, it represents just a misuse
+        of the serializer that can cause database integrity errors.
+
+        The steps are:
+            * sell a fake product that is not available
+            * the serializer is saved without validation
+            * the Recipe is created but:
+                * the ``validated_data`` is not accessible
+                * Django does a rollback
+            * No recipe must be saved because of the rollback
+            * No product must be saved because of the rollback
+        """
+        # product with a fake item not present in the database
+        recipe = {
+            'products': [
+                {
+                    'id': 1,
+                    'price': '5.90',
+                },
+            ]
+        }
+        # check the serializer
+        serializer = RecipeSerializer(data=recipe)
+        # save the serializer but expect a DRF ``AssertionError``
+        with pytest.raises(AssertionError):
+            serializer.save()
+        # the Recipe must not be created
+        assert Recipe.objects.count() == 0
+        assert Product.objects.count() == 0
