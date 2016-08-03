@@ -19,6 +19,7 @@ uwsgi
 # testing
 pytest
 pytest-django
+pytest-mock
 pytest-xdist
 pytest-cov
 pytest-selenium
