@@ -2,9 +2,11 @@ import pytest
 
 from io import BytesIO
 
+from django.core.files.uploadedfile import InMemoryUploadedFile
+
 from PIL import Image
 
-from django.core.files.uploadedfile import InMemoryUploadedFile
+from rest_framework.test import APIClient
 
 
 @pytest.fixture
@@ -31,3 +33,11 @@ def temp_image():
     # return the image
     image_file.seek(0)
     return image_file
+
+
+@pytest.fixture
+def api_client():
+    """
+    Returns a Django REST Framework APIClient
+    """
+    return APIClient()
