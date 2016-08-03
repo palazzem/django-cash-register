@@ -3,8 +3,6 @@ from django.conf import settings
 
 from rest_framework import serializers
 
-from djmoney.contrib.django_rest_framework.fields import MoneyField
-
 from .models import Product, Recipe, Sell
 
 
@@ -31,7 +29,7 @@ class RecipeItemSerializer(serializers.Serializer):
           is one
     """
     id = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
-    price = MoneyField(max_digits=10, decimal_places=2)
+    price = serializers.DecimalField(max_digits=10, decimal_places=2)
     price_currency = serializers.ChoiceField(settings.CURRENCIES, default='EUR')
     quantity = serializers.DecimalField(max_digits=10, decimal_places=2, default=1.0)
 
