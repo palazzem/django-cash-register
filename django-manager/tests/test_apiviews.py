@@ -117,3 +117,65 @@ def test_recipe_api_ok(api_client, django_user_model):
     # the recipe has been created through the ``RecipeSerializer``
     assert response.status_code == 201
     assert Recipe.objects.count() == 1
+    recipe = Recipe.objects.all()[0]
+    assert recipe.products.count() == 3
+
+
+@pytest.mark.django_db
+def test_recipe_api_unauthorized_for_regular_user(api_client, django_user_model):
+    """
+    Bob is a regular user, that wants to create a new receipt.
+    Unfortunately, the endpoint is available only for admin users and
+    because of that, he cannot access the API
+        * Bob is an authenticated user
+        * Bob is a regular user
+        * Bob tries to post a new list of sold products
+        * the API returns 403
+    """
+    # create some products
+    product = mommy.make(Product)
+    # Bob is a regular user
+    bob = django_user_model.objects.create_user(username='bob', password='123456')
+    api_client.login(username='bob', password='123456')
+    # sold products
+    sold_items = {
+        'products': [
+            {
+                'id': product.id,
+                'price': '5.90',
+            },
+        ]
+    }
+    # get the receipts endpoint
+    endpoint = reverse('registers:recipe-list')
+    response = api_client.post(endpoint, data=sold_items)
+    # unauthorized
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_recipe_api_unauthorized_for_anonymous(api_client):
+    """
+    Eve is a malicious user, that uses a custom client to
+    create some random receipts. Because Eve is not
+    a valid user, she must receive a 403
+        * Eve is not a registered user
+        * Eve tries to post a new list of sold products
+        * the API returns 403
+    """
+    # create some products
+    product = mommy.make(Product)
+    # sold products
+    sold_items = {
+        'products': [
+            {
+                'id': product.id,
+                'price': '5.90',
+            },
+        ]
+    }
+    # get the receipts endpoint
+    endpoint = reverse('registers:recipe-list')
+    response = api_client.post(endpoint, data=sold_items)
+    # unauthorized
+    assert response.status_code == 403
