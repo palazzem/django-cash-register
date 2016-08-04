@@ -12,9 +12,9 @@ from django.core.urlresolvers import reverse
 from serial import SerialException
 
 from registers import apiviews
-from registers.models import Product, Recipe
+from registers.models import Product, Receipt
 from registers.receipts import convert_serializer
-from registers.serializers import RecipeSerializer
+from registers.serializers import ReceiptSerializer
 
 
 @pytest.mark.django_db
@@ -50,9 +50,9 @@ def test_receipt_post_print(alice_client, mocker, settings):
         ]
     }
     # get the receipts endpoint
-    endpoint = reverse('registers:recipe-list')
+    endpoint = reverse('registers:receipt-list')
     response = alice_client.post(endpoint, data=sold_items)
-    # the recipe has been created through the ``RecipeSerializer``
+    # the receipt has been created through the ``ReceiptSerializer``
     assert response.status_code == 201
     assert convert_serializer.call_count == 1
     assert print_receipt.call_count == 1
@@ -88,9 +88,9 @@ def test_receipt_post_without_print(alice_client, mocker):
         ]
     }
     # get the receipts endpoint
-    endpoint = reverse('registers:recipe-list')
+    endpoint = reverse('registers:receipt-list')
     response = alice_client.post(endpoint, data=sold_items)
-    # the recipe has been created through the ``RecipeSerializer``
+    # the receipt has been created through the ``ReceiptSerializer``
     assert response.status_code == 201
     assert convert_serializer.call_count == 0
     assert print_receipt.call_count == 0
@@ -136,14 +136,14 @@ def test_receipt_post_rollback_on_print_errors(alice_client, mocker, settings):
         ]
     }
     # get the receipts endpoint
-    endpoint = reverse('registers:recipe-list')
+    endpoint = reverse('registers:receipt-list')
     response = alice_client.post(endpoint, data=sold_items)
     # an exception is raised and it causes a 500 error
     error = 'The connected cash register is not ready. Please check the connection'
     assert response.status_code == 500
     assert response.data['detail'] == error
     # no receipts must be created
-    assert Recipe.objects.count() == 0
+    assert Receipt.objects.count() == 0
 
 
 @pytest.mark.django_db
@@ -156,7 +156,7 @@ def test_convert_serializer():
     # create a list of products
     products = mommy.make(Product, _quantity=3)
     # products that are sold
-    recipe = {
+    receipt = {
         'products': [
             {
                 'id': products[0].id,
@@ -175,7 +175,7 @@ def test_convert_serializer():
         ]
     }
     # create a valid serializer
-    serializer = RecipeSerializer(data=recipe)
+    serializer = ReceiptSerializer(data=receipt)
     serializer.is_valid()
     # convert the serializer
     expected = [

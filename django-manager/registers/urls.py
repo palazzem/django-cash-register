@@ -2,11 +2,11 @@ from django.conf.urls import url
 
 from rest_framework.routers import DefaultRouter
 
-from .apiviews import ProductViewSet, RecipeViewSet
+from .apiviews import ProductViewSet, ReceiptViewSet
 
 
 app_name = 'registers'
 router = DefaultRouter()
 router.register(r'products', ProductViewSet)
-router.register(r'recipes', RecipeViewSet)
+router.register(r'receipts', ReceiptViewSet)
 urlpatterns = router.urls

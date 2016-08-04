@@ -3,7 +3,7 @@ from django.conf import settings
 
 from rest_framework import serializers
 
-from .models import Product, Recipe, Sell
+from .models import Product, Receipt, Sell
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -14,10 +14,10 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
 
 
-class RecipeItemSerializer(serializers.Serializer):
+class ReceiptItemSerializer(serializers.Serializer):
     """
-    The ``RecipeItemSerializer`` serializes a single line
-    item of a generic Recipe. Each row must contain:
+    The ``ReceiptItemSerializer`` serializes a single line
+    item of a generic ``Receipt``. Each row must contain:
         * ``id``: the product primary key that should exist
           in the database, otherwise it is not valid
         * ``price``: how much is the price of a single item;
@@ -34,41 +34,41 @@ class RecipeItemSerializer(serializers.Serializer):
     quantity = serializers.DecimalField(max_digits=10, decimal_places=2, default=1.0)
 
 
-class RecipeSerializer(serializers.Serializer):
+class ReceiptSerializer(serializers.Serializer):
     """
-    The ``RecipeSerializer`` serializes a list of products
-    so that they can be used to create a new recipe. Anyway,
-    it will not accept directly a ``Recipe`` model because
+    The ``ReceiptSerializer`` serializes a list of products
+    so that they can be used to create a new receipt. Anyway,
+    it will not accept directly a ``Receipt`` model because
     other fields should not be set by the user input.
 
-    This serializer creates a new ``Recipe`` and then all
+    This serializer creates a new ``Receipt`` and then all
     related ``Sell`` instances. Furthermore, it ensures
     that the given input is also validated for the
     ``python-cash-register`` package
     """
-    products = RecipeItemSerializer(many=True, allow_empty=False)
+    products = ReceiptItemSerializer(many=True, allow_empty=False)
 
     @transaction.atomic
     def save(self):
         """
-        Custom save() for serializer that creates the ``Recipe``, honoring
+        Custom save() for serializer that creates the ``Receipt``, honoring
         the ManyToMany relationship with ``Product`` (through the ``Sell``
         model).
 
         The creation pass through the following steps:
             * a transaction is created
-            * the ``Recipe`` is created
+            * the ``Receipt`` is created
             * for each product in ``products``, create a ``Sell`` relationship
               with ``Product``
             * if the result is GOOD => commit the transaction
             * if the result is BAD => rollback the transaction
         """
-        # create an empty Recipe
-        recipe = Recipe.objects.create()
-        # add sold items to the Recipe
+        # create an empty Receipt
+        receipt = Receipt.objects.create()
+        # add sold items to the Receipt
         for item in self.validated_data['products']:
             sell = Sell(
-                recipe=recipe,
+                receipt=receipt,
                 product=item['id'],
                 quantity=item['quantity'],
                 price=item['price'],

@@ -4,7 +4,7 @@ from model_mommy import mommy
 
 from django.core.urlresolvers import reverse
 
-from registers.models import Product, Recipe
+from registers.models import Product, Receipt
 
 
 @pytest.mark.django_db
@@ -63,15 +63,15 @@ def test_product_api_unauthorized_for_anonymous(api_client):
 
 
 @pytest.mark.django_db
-def test_recipe_api_ok(alice_client):
+def test_receipt_api_ok(alice_client):
     """
     Alice is the shop owner (admin), that uses an applications to
-    create a new recipe.
+    create a new receipt.
         * Alice is a valid user
         * Alice is a super user
         * Alice applicastions posts a list of products to create
-          a new recipe
-        * the recipe and the products are sold correctly
+          a new receipt
+        * the receipt and the products are sold correctly
     """
     # create some products
     products = mommy.make(Product, _quantity=3)
@@ -95,17 +95,17 @@ def test_recipe_api_ok(alice_client):
         ]
     }
     # get the receipts endpoint
-    endpoint = reverse('registers:recipe-list')
+    endpoint = reverse('registers:receipt-list')
     response = alice_client.post(endpoint, data=sold_items)
-    # the recipe has been created through the ``RecipeSerializer``
+    # the receipt has been created through the ``ReceiptSerializer``
     assert response.status_code == 201
-    assert Recipe.objects.count() == 1
-    recipe = Recipe.objects.all()[0]
-    assert recipe.products.count() == 3
+    assert Receipt.objects.count() == 1
+    receipt = Receipt.objects.all()[0]
+    assert receipt.products.count() == 3
 
 
 @pytest.mark.django_db
-def test_recipe_api_unauthorized_for_regular_user(bob_client):
+def test_receipt_api_unauthorized_for_regular_user(bob_client):
     """
     Bob is a regular user, that wants to create a new receipt.
     Unfortunately, the endpoint is available only for admin users and
@@ -127,14 +127,14 @@ def test_recipe_api_unauthorized_for_regular_user(bob_client):
         ]
     }
     # get the receipts endpoint
-    endpoint = reverse('registers:recipe-list')
+    endpoint = reverse('registers:receipt-list')
     response = bob_client.post(endpoint, data=sold_items)
     # unauthorized
     assert response.status_code == 403
 
 
 @pytest.mark.django_db
-def test_recipe_api_unauthorized_for_anonymous(api_client):
+def test_receipt_api_unauthorized_for_anonymous(api_client):
     """
     Eve is a malicious user, that uses a custom client to
     create some random receipts. Because Eve is not
@@ -155,7 +155,7 @@ def test_recipe_api_unauthorized_for_anonymous(api_client):
         ]
     }
     # get the receipts endpoint
-    endpoint = reverse('registers:recipe-list')
+    endpoint = reverse('registers:receipt-list')
     response = api_client.post(endpoint, data=sold_items)
     # unauthorized
     assert response.status_code == 403

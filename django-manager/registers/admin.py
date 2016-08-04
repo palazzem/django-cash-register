@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Product, Recipe, Sell
+from .models import Product, Receipt, Sell
 
 
 class SellInline(admin.TabularInline):
@@ -8,8 +8,8 @@ class SellInline(admin.TabularInline):
     extra = 1
 
 
-@admin.register(Recipe)
-class RecipeAdmin(admin.ModelAdmin):
+@admin.register(Receipt)
+class ReceiptAdmin(admin.ModelAdmin):
     inlines = [
         SellInline,
     ]

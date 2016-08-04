@@ -2,8 +2,8 @@
 Django cash register
 ====================
 
-A Django application that exposes a set of endpoints to print your recipes with cash
-registers.
+A Django application that exposes a set of endpoints to print your receipts with
+supported cash registers.
 
 Support
 -------

@@ -6,10 +6,10 @@ from serial import SerialException
 from rest_framework import mixins, viewsets
 from rest_framework.permissions import IsAdminUser
 
-from .models import Product, Recipe
+from .models import Product, Receipt
 from .receipts import convert_serializer, print_receipt
 from .exceptions import CashRegisterNotReady
-from .serializers import ProductSerializer, RecipeSerializer
+from .serializers import ProductSerializer, ReceiptSerializer
 
 
 class ProductViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -23,22 +23,22 @@ class ProductViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = ProductSerializer
 
 
-class RecipeViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+class ReceiptViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     """
-    The ``RecipeViewSet`` API provides an endpoint to create a new Recipe
+    The ``ReceiptViewSet`` API provides an endpoint to create a new ``Receipt``
     according to given products. Indeed the API is not related to a
-    particular model but only makes use of a custom ``RecipeSerializer``
-    to store the new ``Recipe`` while printing a new recipe using a
+    particular model but only makes use of a custom ``ReceiptSerializer``
+    to store the new ``Receipt`` while printing a new receipt using a
     connected device.
     """
     permission_classes = (IsAdminUser,)
 
-    queryset = Recipe.objects.all()
-    serializer_class = RecipeSerializer
+    queryset = Receipt.objects.all()
+    serializer_class = ReceiptSerializer
 
     def perform_create(self, serializer):
         """
-        Save the serializer so that the ``Recipe`` and connected models
+        Save the serializer so that the ``Receipt`` and connected models
         are created, but also prints the receipt if the ``REGISTER_PRINT``
         setting is set to ``True``.
 
@@ -48,7 +48,7 @@ class RecipeViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
         """
         try:
             with transaction.atomic():
-                # create the ``Recipe`` model, honoring the ManyToMany
+                # create the ``Receipt`` model, honoring the ManyToMany
                 serializer.save()
 
                 if settings.REGISTER_PRINT:
