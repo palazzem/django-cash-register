@@ -41,3 +41,31 @@ def api_client():
     Returns a Django REST Framework APIClient
     """
     return APIClient()
+
+
+@pytest.fixture
+def alice_client(api_client, django_user_model):
+    """
+    Alice is a superuser and this is her ``APIClient``
+    instance already logged in.
+    """
+    # Alice is an admin user
+    alice = django_user_model.objects.create_superuser(
+        username='alice',
+        email='alice@shop.com',
+        password='123456',
+    )
+    api_client.login(username='alice', password='123456')
+    return api_client
+
+
+@pytest.fixture
+def bob_client(api_client, django_user_model):
+    """
+    Bob is a regular user and this is his ``APIClient``
+    instance already logged in.
+    """
+    # Bob is a regular user
+    bob = django_user_model.objects.create_user(username='bob', password='123456')
+    api_client.login(username='bob', password='123456')
+    return api_client

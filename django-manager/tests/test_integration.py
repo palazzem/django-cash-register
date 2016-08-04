@@ -18,7 +18,7 @@ from registers.serializers import RecipeSerializer
 
 
 @pytest.mark.django_db
-def test_receipt_post_print(api_client, django_user_model, mocker, settings):
+def test_receipt_post_print(alice_client, mocker, settings):
     """
     Ensure that a POST on the receipt endpoint prints a receipt
     through the connected cash register.
@@ -35,13 +35,6 @@ def test_receipt_post_print(api_client, django_user_model, mocker, settings):
     print_receipt = mocker.spy(apiviews, 'print_receipt')
     # create some products
     products = mommy.make(Product, _quantity=2)
-    # Alice is an admin user
-    alice = django_user_model.objects.create_superuser(
-        username='alice',
-        email='alice@shop.com',
-        password='123456',
-    )
-    api_client.login(username='alice', password='123456')
     # sold products
     sold_items = {
         'products': [
@@ -58,7 +51,7 @@ def test_receipt_post_print(api_client, django_user_model, mocker, settings):
     }
     # get the receipts endpoint
     endpoint = reverse('registers:recipe-list')
-    response = api_client.post(endpoint, data=sold_items)
+    response = alice_client.post(endpoint, data=sold_items)
     # the recipe has been created through the ``RecipeSerializer``
     assert response.status_code == 201
     assert convert_serializer.call_count == 1
@@ -66,7 +59,7 @@ def test_receipt_post_print(api_client, django_user_model, mocker, settings):
 
 
 @pytest.mark.django_db
-def test_receipt_post_without_print(api_client, django_user_model, mocker):
+def test_receipt_post_without_print(alice_client, mocker):
     """
     Ensure that a POST on the receipt endpoint doesn't print a receipt
     if an internal Django settings is set to stop this action.
@@ -80,13 +73,6 @@ def test_receipt_post_without_print(api_client, django_user_model, mocker):
     print_receipt = mocker.patch('registers.apiviews.print_receipt')
     # create some products
     products = mommy.make(Product, _quantity=2)
-    # Alice is an admin user
-    alice = django_user_model.objects.create_superuser(
-        username='alice',
-        email='alice@shop.com',
-        password='123456',
-    )
-    api_client.login(username='alice', password='123456')
     # sold products
     sold_items = {
         'products': [
@@ -103,7 +89,7 @@ def test_receipt_post_without_print(api_client, django_user_model, mocker):
     }
     # get the receipts endpoint
     endpoint = reverse('registers:recipe-list')
-    response = api_client.post(endpoint, data=sold_items)
+    response = alice_client.post(endpoint, data=sold_items)
     # the recipe has been created through the ``RecipeSerializer``
     assert response.status_code == 201
     assert convert_serializer.call_count == 0
@@ -111,7 +97,7 @@ def test_receipt_post_without_print(api_client, django_user_model, mocker):
 
 
 @pytest.mark.django_db
-def test_receipt_post_rollback_on_print_errors(api_client, django_user_model, mocker, settings):
+def test_receipt_post_rollback_on_print_errors(alice_client, mocker, settings):
     """
     Ensure that a POST on the receipt endpoint prints a receipt
     through the connected cash register. This test doesn't check
@@ -130,13 +116,6 @@ def test_receipt_post_rollback_on_print_errors(api_client, django_user_model, mo
     mock_serial.side_effect = SerialException
     # create some products
     products = mommy.make(Product, _quantity=3)
-    # Alice is an admin user
-    alice = django_user_model.objects.create_superuser(
-        username='alice',
-        email='alice@shop.com',
-        password='123456',
-    )
-    api_client.login(username='alice', password='123456')
     # sold products
     sold_items = {
         'products': [
@@ -158,7 +137,7 @@ def test_receipt_post_rollback_on_print_errors(api_client, django_user_model, mo
     }
     # get the receipts endpoint
     endpoint = reverse('registers:recipe-list')
-    response = api_client.post(endpoint, data=sold_items)
+    response = alice_client.post(endpoint, data=sold_items)
     # an exception is raised and it causes a 500 error
     error = 'The connected cash register is not ready. Please check the connection'
     assert response.status_code == 500

@@ -8,7 +8,7 @@ from registers.models import Product, Recipe
 
 
 @pytest.mark.django_db
-def test_product_api_ok(api_client, django_user_model):
+def test_product_api_ok(alice_client):
     """
     Alice is the shop owner (admin), that uses an applications to
     retrieve registered products.
@@ -19,16 +19,9 @@ def test_product_api_ok(api_client, django_user_model):
     """
     # create some products
     products = mommy.make(Product, _quantity=2)
-    # Alice is an admin user
-    alice = django_user_model.objects.create_superuser(
-        username='alice',
-        email='alice@shop.com',
-        password='123456',
-    )
-    api_client.login(username='alice', password='123456')
     # get the products endpoint
     endpoint = reverse('registers:product-list')
-    response = api_client.get(endpoint)
+    response = alice_client.get(endpoint)
     # authorized with two products as a response
     assert response.status_code == 200
     assert response.data[0]['name'] == products[0].name
@@ -36,7 +29,7 @@ def test_product_api_ok(api_client, django_user_model):
 
 
 @pytest.mark.django_db
-def test_product_api_unauthorized_for_regular_user(api_client, django_user_model):
+def test_product_api_unauthorized_for_regular_user(bob_client):
     """
     Bob is a regular user, that wants to retrieve registered products.
     Unfortunately, the endpoint is available only for admin users and
@@ -46,12 +39,9 @@ def test_product_api_unauthorized_for_regular_user(api_client, django_user_model
         * Bob retrieves the products list
         * the products list is not returned (403)
     """
-    # Bob is a regular user
-    bob = django_user_model.objects.create_user(username='bob', password='123456')
-    api_client.login(username='bob', password='123456')
     # get the products endpoint
     endpoint = reverse('registers:product-list')
-    response = api_client.get(endpoint)
+    response = bob_client.get(endpoint)
     # authorized
     assert response.status_code == 403
 
@@ -73,7 +63,7 @@ def test_product_api_unauthorized_for_anonymous(api_client):
 
 
 @pytest.mark.django_db
-def test_recipe_api_ok(api_client, django_user_model):
+def test_recipe_api_ok(alice_client):
     """
     Alice is the shop owner (admin), that uses an applications to
     create a new recipe.
@@ -85,13 +75,6 @@ def test_recipe_api_ok(api_client, django_user_model):
     """
     # create some products
     products = mommy.make(Product, _quantity=3)
-    # Alice is an admin user
-    alice = django_user_model.objects.create_superuser(
-        username='alice',
-        email='alice@shop.com',
-        password='123456',
-    )
-    api_client.login(username='alice', password='123456')
     # sold products
     sold_items = {
         'products': [
@@ -113,7 +96,7 @@ def test_recipe_api_ok(api_client, django_user_model):
     }
     # get the receipts endpoint
     endpoint = reverse('registers:recipe-list')
-    response = api_client.post(endpoint, data=sold_items)
+    response = alice_client.post(endpoint, data=sold_items)
     # the recipe has been created through the ``RecipeSerializer``
     assert response.status_code == 201
     assert Recipe.objects.count() == 1
@@ -122,7 +105,7 @@ def test_recipe_api_ok(api_client, django_user_model):
 
 
 @pytest.mark.django_db
-def test_recipe_api_unauthorized_for_regular_user(api_client, django_user_model):
+def test_recipe_api_unauthorized_for_regular_user(bob_client):
     """
     Bob is a regular user, that wants to create a new receipt.
     Unfortunately, the endpoint is available only for admin users and
@@ -134,9 +117,6 @@ def test_recipe_api_unauthorized_for_regular_user(api_client, django_user_model)
     """
     # create some products
     product = mommy.make(Product)
-    # Bob is a regular user
-    bob = django_user_model.objects.create_user(username='bob', password='123456')
-    api_client.login(username='bob', password='123456')
     # sold products
     sold_items = {
         'products': [
@@ -148,7 +128,7 @@ def test_recipe_api_unauthorized_for_regular_user(api_client, django_user_model)
     }
     # get the receipts endpoint
     endpoint = reverse('registers:recipe-list')
-    response = api_client.post(endpoint, data=sold_items)
+    response = bob_client.post(endpoint, data=sold_items)
     # unauthorized
     assert response.status_code == 403
 
