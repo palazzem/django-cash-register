@@ -50,7 +50,7 @@ def alice_client(api_client, django_user_model):
     instance already logged in.
     """
     # Alice is an admin user
-    alice = django_user_model.objects.create_superuser(
+    django_user_model.objects.create_superuser(
         username='alice',
         email='alice@shop.com',
         password='123456',
@@ -66,6 +66,6 @@ def bob_client(api_client, django_user_model):
     instance already logged in.
     """
     # Bob is a regular user
-    bob = django_user_model.objects.create_user(username='bob', password='123456')
+    django_user_model.objects.create_user(username='bob', password='123456')
     api_client.login(username='bob', password='123456')
     return api_client

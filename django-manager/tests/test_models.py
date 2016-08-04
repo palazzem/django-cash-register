@@ -24,7 +24,6 @@ class TestProduct:
         # check representation
         assert str(product) == product.name
 
-
     @pytest.mark.django_db
     def test_str(self):
         """
@@ -49,7 +48,6 @@ class TestReceipt:
         assert receipt.date is not None
         assert receipt.products.count() == 0
 
-
     @pytest.mark.django_db
     def test_auto_now_date(self):
         """
@@ -62,7 +60,6 @@ class TestReceipt:
         receipt = mommy.make(Receipt)
         # test the field
         assert now < receipt.date
-
 
     @pytest.mark.django_db
     def test_str(self):
@@ -77,7 +74,6 @@ class TestReceipt:
         receipt.save()
         # check default attributes
         assert str(receipt) == 'Total: 0.0 -- Jan. 1, 2016, midnight'
-
 
     @pytest.mark.django_db
     def test_receipt_with_sold_items(self):
