@@ -9,6 +9,8 @@ from model_mommy import mommy
 
 from django.core.urlresolvers import reverse
 
+from serial import SerialException
+
 from registers import apiviews
 from registers.models import Product, Recipe
 from registers.receipts import convert_serializer
@@ -123,9 +125,9 @@ def test_receipt_post_rollback_on_print_errors(api_client, django_user_model, mo
     """
     # force the print
     settings.REGISTER_PRINT = True
-    # simulate an exception on serial port
+    # simulate a serial exception
     mock_serial = mocker.patch('registers.receipts.Serial')
-    mock_serial.side_effect = Exception('Error')
+    mock_serial.side_effect = SerialException
     # create some products
     products = mommy.make(Product, _quantity=3)
     # Alice is an admin user

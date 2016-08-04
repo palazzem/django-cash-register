@@ -1,6 +1,8 @@
 from django.db import transaction
 from django.conf import settings
 
+from serial import SerialException
+
 from rest_framework import mixins, viewsets
 from rest_framework.permissions import IsAdminUser
 
@@ -54,5 +56,5 @@ class RecipeViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
                     # to the cash register printer
                     data = convert_serializer(serializer)
                     print_receipt(data)
-        except Exception:
+        except SerialException:
             raise CashRegisterNotReady
