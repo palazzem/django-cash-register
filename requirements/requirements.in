@@ -11,6 +11,7 @@ pytz
 
 # third-party
 pillow
+pyserial
 python-cash-register
 
 # application server
