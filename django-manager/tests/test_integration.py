@@ -10,7 +10,7 @@ from model_mommy import mommy
 from django.core.urlresolvers import reverse
 
 from registers import apiviews
-from registers.models import Product
+from registers.models import Product, Recipe
 from registers.receipts import convert_serializer
 from registers.serializers import RecipeSerializer
 
@@ -106,6 +106,63 @@ def test_receipt_post_without_print(api_client, django_user_model, mocker):
     assert response.status_code == 201
     assert convert_serializer.call_count == 0
     assert print_receipt.call_count == 0
+
+
+@pytest.mark.django_db
+def test_receipt_post_rollback_on_print_errors(api_client, django_user_model, mocker, settings):
+    """
+    Ensure that a POST on the receipt endpoint prints a receipt
+    through the connected cash register. This test doesn't check
+    the validity of the ViewSet / Serializer but only assert
+    that the python-cash-register integration works properly.
+        * create two products
+        * prepare a payload with 2 sold items
+        * POST the message
+        * expect that an exception is raised and that the database
+          did a rollback
+    """
+    # force the print
+    settings.REGISTER_PRINT = True
+    # simulate an exception on serial port
+    mock_serial = mocker.patch('registers.receipts.Serial')
+    mock_serial.side_effect = Exception('Error')
+    # create some products
+    products = mommy.make(Product, _quantity=3)
+    # Alice is an admin user
+    alice = django_user_model.objects.create_superuser(
+        username='alice',
+        email='alice@shop.com',
+        password='123456',
+    )
+    api_client.login(username='alice', password='123456')
+    # sold products
+    sold_items = {
+        'products': [
+            {
+                'id': products[0].id,
+                'price': '5.90',
+            },
+            {
+                'id': products[1].id,
+                'price': '2.00',
+                'quantity': '2.0',
+            },
+            {
+                'id': products[2].id,
+                'price': '1.00',
+                'quantity': '1.68',
+            },
+        ]
+    }
+    # get the receipts endpoint
+    endpoint = reverse('registers:recipe-list')
+    response = api_client.post(endpoint, data=sold_items)
+    # an exception is raised and it causes a 500 error
+    error = 'The connected cash register is not ready. Please check the connection'
+    assert response.status_code == 500
+    assert response.data['detail'] == error
+    # no receipts must be created
+    assert Recipe.objects.count() == 0
 
 
 @pytest.mark.django_db
