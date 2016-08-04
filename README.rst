@@ -2,6 +2,13 @@
 Django cash register
 ====================
 
+.. image:: https://travis-ci.org/palazzem/django-cash-register.svg?branch=master
+    :target: https://travis-ci.org/palazzem/django-cash-register
+
+.. image:: https://codecov.io/gh/palazzem/django-cash-register/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/palazzem/django-cash-register
+
+
 A Django application that exposes a set of endpoints to print your receipts with
 supported cash registers.
 
