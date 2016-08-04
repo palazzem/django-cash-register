@@ -1,5 +1,4 @@
 import os
-import dj_database_url
 
 from getenv import env
 
@@ -79,21 +78,18 @@ TEMPLATES = [
 WSGI_APPLICATION = 'manager.wsgi.application'
 
 # database configuration
-DATABASES_DEFAULT = 'postgres://devel:123456@127.0.0.1:5432/manager'
 DATABASES = {
-    'default': dj_database_url.config(default=DATABASES_DEFAULT),
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'database.sqlite3',
+    }
 }
 
 # Cache
-CACHES_DEFAULT = 'redis://127.0.0.1:6379/1'
 CACHES = {
     'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': env('CACHE_URL', CACHES_DEFAULT),
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        },
-        'TIMEOUT': 3600
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'django-cash',
     }
 }
 
