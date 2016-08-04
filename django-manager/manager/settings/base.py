@@ -109,6 +109,14 @@ USE_TZ = True
 # application design must be updated
 CURRENCIES = ('EUR',)
 
+# cash register settings
+REGISTER_PRINT = env('DJANGO_REGISTER_PRINT', False)
+REGISTER_NAME = env('DJANGO_REGISTER_NAME', 'Shop')
+SERIAL_PORT = env('DJANGO_SERIAL_PORT', '/dev/ttyUSB0')
+SERIAL_BAUDRATE = env('DJANGO_SERIAL_BAUDRATE', 9600)
+SERIAL_XONXOFF = env('DJANGO_SERIAL_XONXOFF', True)
+SERIAL_TIMEOUT = env('DJANGO_SERIAL_TIMEOUT', 1)
+
 # static files and media
 ASSETS_ROOT = env('DJANGO_ASSETS_ROOT', BASE_DIR)
 STATIC_HOST = env('DJANGO_STATIC_HOST', '')
