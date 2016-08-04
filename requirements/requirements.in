@@ -1,12 +1,9 @@
 # base stuff
 django
 django-getenv
-django-redis
 django-money
 djangorestframework
-dj-database-url
 whitenoise
-psycopg2
 pytz
 
 # third-party
@@ -21,17 +18,12 @@ uwsgi
 pytest
 pytest-django
 pytest-mock
-pytest-xdist
 pytest-cov
-pytest-selenium
 model-mommy
 flake8
-coverage
-ipdb
 
 # logging
 python-logstash
 
 # monitoring
-newrelic
 raven
