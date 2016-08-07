@@ -9,11 +9,14 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
-import BaseComponent from './components/BaseComponent';
+import AppBarTop from './components/AppBar';
+
 
 const App = () => (
   <MuiThemeProvider>
-    <BaseComponent />
+    <div>
+        <AppBarTop title='Dispensa 63 POS' />
+    </div>
   </MuiThemeProvider>
 );
 
