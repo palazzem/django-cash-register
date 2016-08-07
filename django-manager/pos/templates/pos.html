@@ -1,1 +1,15 @@
-Hello world!
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Cash manager POS</title>
+    <link rel="stylesheet" href="{% static 'main.css' %}">
+  </head>
+  <body>
+    <div class="container"></div>
+    <script src="{% static 'vendor.bundle.js' %}"></script>
+    <script src="{% static 'main.js' %}"></script>
+  </body>
+</html>
