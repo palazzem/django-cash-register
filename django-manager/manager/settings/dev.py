@@ -19,4 +19,8 @@ LOGGING['loggers'] = {
         'handlers': ['console'],
         'level': env('MANAGER_LOG_LEVEL', 'DEBUG'),
     },
+    'registers': {
+        'handlers': ['console'],
+        'level': env('MANAGER_LOG_LEVEL', 'DEBUG'),
+    },
 }

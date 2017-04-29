@@ -29,4 +29,8 @@ LOGGING['loggers'] = {
         'handlers': ['console', 'syslog'],
         'level': env('MANAGER_LOG_LEVEL', 'INFO'),
     },
+    'registers': {
+        'handlers': ['console', 'syslog'],
+        'level': env('MANAGER_LOG_LEVEL', 'INFO'),
+    },
 }
