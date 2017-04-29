@@ -16,7 +16,7 @@ class Product(models.Model):
     is used when creating the relationship with the ``Receipt``
     model.
     """
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     default_price = MoneyField(max_digits=10, decimal_places=2, default_currency='EUR')
     icon = models.ImageField(blank=True, null=True)
 
