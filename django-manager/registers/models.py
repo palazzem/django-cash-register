@@ -59,3 +59,18 @@ class Sell(models.Model):
 
     def __str__(self):
         return 'Sold {} {} for {} each'.format(self.quantity, self.product, self.price)
+
+    def save(self, *args, **kwargs):
+        """
+        At the data-layer, we check if the price of this sold item is 0.00 and,
+        if it's the case, we assign the default value available in the `Product`
+        relationship.
+
+        NOTE: we do the assumption that selling an item with price 0.00 is invalid.
+        """
+        # set the default value after the submission
+        if self.price.amount.is_zero():
+            self.price = self.product.default_price
+
+        # save the item
+        super().save(*args, **kwargs)

@@ -153,3 +153,49 @@ class TestReceipt:
         # check default attributes
         assert str(receipt_1) == 'Total: 1.00 -- Jan. 1, 2016, midnight'
         assert str(receipt_2) == 'Total: 1.00 -- Jan. 1, 2016, midnight'
+
+    @pytest.mark.django_db
+    def test_receipt_default_prices(self):
+        """
+        Ensures that the `Receipt` products uses the `default_price` if
+        that value is not set in the `Sell` model.
+        """
+        # create a receipt
+        product = mommy.make(Product, default_price=2.50)
+        receipt = mommy.make(Receipt)
+        # update the receipt auto_now_add attribute
+        new_time = timezone.datetime(2016, 1, 1)
+        receipt.date = new_time
+        receipt.save()
+        # add Sell items
+        Sell.objects.create(
+            receipt=receipt,
+            product=product,
+            quantity=1,
+            price=0.0,
+        )
+        # check default attributes
+        assert str(receipt) == 'Total: 2.50 -- Jan. 1, 2016, midnight'
+
+    @pytest.mark.django_db
+    def test_receipt_prices_override(self):
+        """
+        Ensures that the `Receipt` products overrides the `default_price`
+        if that value is set in the `Sell` model.
+        """
+        # create a receipt
+        product = mommy.make(Product, default_price=2.50)
+        receipt = mommy.make(Receipt)
+        # update the receipt auto_now_add attribute
+        new_time = timezone.datetime(2016, 1, 1)
+        receipt.date = new_time
+        receipt.save()
+        # add Sell items
+        Sell.objects.create(
+            receipt=receipt,
+            product=product,
+            quantity=1,
+            price=1.0,
+        )
+        # check default attributes
+        assert str(receipt) == 'Total: 1.00 -- Jan. 1, 2016, midnight'
