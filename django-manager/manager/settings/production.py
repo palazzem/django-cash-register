@@ -19,6 +19,15 @@ EMAIL_HOST_USER = env('DJANGO_EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env('DJANGO_EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = env('DJANGO_EMAIL_USE_TLS', True)
 
+# add sentry
+INSTALLED_APPS += (
+    'raven.contrib.django.raven_compat',
+)
+
+RAVEN_CONFIG = {
+    'dsn': env('SENTRY_DSN'),
+}
+
 # logging
 LOGGING['loggers'] = {
     'django': {
