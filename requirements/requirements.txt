@@ -6,6 +6,8 @@
 #
 contextlib2==0.5.5        # via raven
 coverage==4.3.4           # via pytest-cov
+datadog==0.16.0
+decorator==4.0.11         # via datadog
 dj-database-url==0.4.2
 django-getenv==1.3.2
 django-money==0.10.2
@@ -29,6 +31,8 @@ pytest==3.0.7
 python-cash-register==0.1.1
 pytz==2017.2
 raven==6.0.0
+requests==2.13.0          # via datadog
+simplejson==3.10.0        # via datadog
 six==1.10.0               # via model-mommy
 uwsgi==2.0.15
 whitenoise==3.3.0
