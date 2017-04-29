@@ -35,7 +35,7 @@ class Receipt(models.Model):
     def __str__(self):
         total = self.sell_set.aggregate(total=Sum(F('price') * F('quantity')))['total'] or 0.0
         date = formats.date_format(self.date, 'DATETIME_FORMAT')
-        return "Total: {} -- {}".format(total, date)
+        return "Total: {0:.2f} -- {1}".format(total, date)
 
 
 class Sell(models.Model):

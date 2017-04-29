@@ -73,7 +73,7 @@ class TestReceipt:
         receipt.date = new_time
         receipt.save()
         # check default attributes
-        assert str(receipt) == 'Total: 0.0 -- Jan. 1, 2016, midnight'
+        assert str(receipt) == 'Total: 0.00 -- Jan. 1, 2016, midnight'
 
     @pytest.mark.django_db
     def test_receipt_with_sold_items(self):
