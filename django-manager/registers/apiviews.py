@@ -36,18 +36,19 @@ class ReceiptViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     def perform_create(self, serializer):
         """
         Save the serializer so that the ``Receipt`` and connected models
-        are created, but also prints the receipt if the ``REGISTER_PRINT``
-        setting is set to ``True``.
-
-        If the variable is set to ``False``, the model is created without printing;
-        in a real world example, ``False`` must be used only for development
-        mode.
+        are created, and call all registered ``Adapters``. If one of these
+        ``Adapters` fails, a rollback is executed; while this is true for
+        many adapters, in general it's not possible to grant consistency because
+        ``Adapters` may not have a possible rollback system, and even if
+        it's available it may fail again.
         """
         with transaction.atomic():
             # create the ``Receipt`` model, honoring the ManyToMany
             serializer.save()
 
-            # push items list to external services
+            # push items list to external components
             items = convert_serializer(serializer)
             for adapter in settings.PUSH_ADAPTERS:
+                # TODO: when an adapter is executed, we may store the
+                # execution so that it is not executed twice
                 adapter.push(items)

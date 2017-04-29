@@ -22,20 +22,19 @@ class CashRegisterAdapter(BaseAdapter):
         cash register. It handles the serial communication, raising
         an exception if something goes wrong.
         """
-        if settings.REGISTER_PRINT:
-            try:
-                # define the serial port
-                conn = Serial()
-                conn.port = settings.SERIAL_PORT
-                conn.baudrate = settings.SERIAL_BAUDRATE
-                conn.xonxoff = settings.SERIAL_XONXOFF
-                conn.timeout = settings.SERIAL_TIMEOUT
+        try:
+            # define the serial port
+            conn = Serial()
+            conn.port = settings.SERIAL_PORT
+            conn.baudrate = settings.SERIAL_BAUDRATE
+            conn.xonxoff = settings.SERIAL_XONXOFF
+            conn.timeout = settings.SERIAL_TIMEOUT
 
-                # create a cash register with a serial connection handler
-                register = SaremaX1(settings.REGISTER_NAME, connection=conn)
+            # create a cash register with a serial connection handler
+            register = SaremaX1(settings.REGISTER_NAME, connection=conn)
 
-                # prepare and send cash register commands
-                register.sell_products(items)
-                register.send()
-            except SerialException:
-                raise CashRegisterNotReady
+            # prepare and send cash register commands
+            register.sell_products(items)
+            register.send()
+        except SerialException:
+            raise CashRegisterNotReady

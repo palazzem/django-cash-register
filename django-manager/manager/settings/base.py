@@ -109,11 +109,11 @@ CURRENCIES = ('EUR',)
 
 # list of Adapters that are used to push data to third party services
 PUSH_ADAPTERS = [
-    'registers.adapters.printers.CashRegisterAdapter',
+    # Available adapters are:
+    # 'registers.adapters.printers.CashRegisterAdapter',
 ]
 
 # cash register settings
-REGISTER_PRINT = env('DJANGO_REGISTER_PRINT', False)
 REGISTER_NAME = env('DJANGO_REGISTER_NAME', 'Shop')
 SERIAL_PORT = env('DJANGO_SERIAL_PORT', '/dev/ttyUSB0')
 SERIAL_BAUDRATE = env('DJANGO_SERIAL_BAUDRATE', 9600)
