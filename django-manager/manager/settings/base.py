@@ -110,10 +110,14 @@ USE_TZ = True
 CURRENCIES = ('EUR',)
 
 # list of Adapters that are used to push data to third party services
+# Available adapters are:
+#   * 'registers.adapters.printers.CashRegisterAdapter'
 PUSH_ADAPTERS = [
-    # Available adapters are:
-    # 'registers.adapters.printers.CashRegisterAdapter',
+    'registers.adapters.services.DatadogAdapter',
 ]
+
+# Datadog adapter settings
+DATADOG_API_KEY = env('DJANGO_DATADOG_API_KEY', None)
 
 # cash register settings
 REGISTER_NAME = env('DJANGO_REGISTER_NAME', 'Shop')
