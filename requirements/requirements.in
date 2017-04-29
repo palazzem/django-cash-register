@@ -3,7 +3,9 @@ django
 django-getenv
 django-money
 djangorestframework
+dj-database-url
 whitenoise
+psycopg2
 pytz
 
 # third-party
@@ -21,9 +23,6 @@ pytest-mock
 pytest-cov
 model-mommy
 flake8
-
-# logging
-python-logstash
 
 # monitoring
 raven

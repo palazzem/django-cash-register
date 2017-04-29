@@ -4,33 +4,31 @@
 #
 #    pip-compile --output-file requirements.txt requirements.in
 #
-contextlib2==0.5.4        # via raven
-coverage==4.2             # via pytest-cov
-django-getenv==1.3.1
-django-money==0.9.1
-django==1.10
-djangorestframework==3.4.1
-flake8==3.0.3
-mccabe==0.5.2             # via flake8
-model-mommy==1.2.6
-pillow==3.3.0
+contextlib2==0.5.5        # via raven
+coverage==4.3.4           # via pytest-cov
+dj-database-url==0.4.2
+django-getenv==1.3.2
+django-money==0.10.2
+django==1.11
+djangorestframework==3.6.2
+flake8==3.3.0
+mccabe==0.6.1             # via flake8
+model-mommy==1.3.2
+olefile==0.44             # via pillow
+pillow==4.1.1
+psycopg2==2.7.1
 py-moneyed==0.6.0         # via django-money
-py==1.4.31                # via pytest
-pycodestyle==2.0.0        # via flake8
-pyflakes==1.2.3           # via flake8
-pyserial==3.1.1
-pytest-cov==2.3.0
-pytest-django==2.9.1
-pytest-mock==1.2
-pytest==2.9.2
+py==1.4.33                # via pytest
+pycodestyle==2.3.1        # via flake8
+pyflakes==1.5.0           # via flake8
+pyserial==3.3
+pytest-cov==2.4.0
+pytest-django==3.1.2
+pytest-mock==1.6.0
+pytest==3.0.7
 python-cash-register==0.1.1
-python-logstash==0.4.6
-pytz==2016.6.1
-raven==5.23.0
+pytz==2017.2
+raven==6.0.0
 six==1.10.0               # via model-mommy
-uwsgi==2.0.13.1
-whitenoise==3.2
-
-# The following packages are commented out because they are
-# considered to be unsafe in a requirements file:
-# setuptools                # via django-money
+uwsgi==2.0.15
+whitenoise==3.3.0

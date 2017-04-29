@@ -1,0 +1,10 @@
+version: '2'
+services:
+  postgres:
+    image: postgres:9.6.1-alpine
+    environment:
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_USER=devel
+      - POSTGRES_DB=cashregister
+    ports:
+      - "127.0.0.1:5432:5432"
