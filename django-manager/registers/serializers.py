@@ -76,3 +76,5 @@ class ReceiptSerializer(serializers.Serializer):
                 price_currency=item['price_currency'],
             )
             sell.save()
+
+        return receipt
