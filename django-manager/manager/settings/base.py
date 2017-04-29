@@ -1,4 +1,5 @@
 import os
+import dj_database_url
 
 from getenv import env
 
@@ -38,9 +39,11 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # third party
     'djmoney',
     'rest_framework',
 
+    # current application
     'registers',
     'pos',
 )
@@ -79,14 +82,12 @@ TEMPLATES = [
 WSGI_APPLICATION = 'manager.wsgi.application'
 
 # database configuration
+DATABASES_DEFAULT = 'postgres://devel:123456@127.0.0.1:5432/cashregister'
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'database.sqlite3',
-    }
+    'default': dj_database_url.config(default=DATABASES_DEFAULT),
 }
 
-# Cache
+# use in-memory cache because it's not a high traffic service
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',

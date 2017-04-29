@@ -3,7 +3,9 @@ django
 django-getenv
 django-money
 djangorestframework
+dj-database-url
 whitenoise
+psycopg2
 pytz
 
 # third-party
