@@ -11,7 +11,7 @@ from django.core.urlresolvers import reverse
 
 from serial import SerialException
 
-from registers import apiviews, adapters
+from registers import adapters
 from registers.models import Product, Receipt
 from registers.receipts import convert_serializer
 from registers.serializers import ReceiptSerializer
@@ -31,8 +31,8 @@ def test_receipt_post_print(alice_client, mocker, settings):
     settings.REGISTER_PRINT = True
     # spy third party libraries and mock the serial port
     mocker.patch('registers.adapters.printers.Serial')
-    convert_serializer = mocker.spy(apiviews, 'convert_serializer')
-    print_receipt = mocker.spy(adapters.printers.CashRegisterAdapter, 'push')
+    sell_products = mocker.spy(adapters.printers.SaremaX1, 'sell_products')
+    send = mocker.spy(adapters.printers.SaremaX1, 'send')
     # create some products
     products = mommy.make(Product, _quantity=2)
     # sold products
@@ -54,8 +54,8 @@ def test_receipt_post_print(alice_client, mocker, settings):
     response = alice_client.post(endpoint, data=sold_items)
     # the receipt has been created through the ``ReceiptSerializer``
     assert response.status_code == 201
-    assert convert_serializer.call_count == 1
-    assert print_receipt.call_count == 1
+    assert sell_products.call_count == 1
+    assert send.call_count == 1
 
 
 @pytest.mark.django_db
@@ -69,8 +69,8 @@ def test_receipt_post_without_print(alice_client, mocker):
         * expect that the receipt is not printed
     """
     # mock third party libraries
-    convert_serializer = mocker.patch('registers.apiviews.convert_serializer')
-    print_receipt = mocker.spy(adapters.printers.CashRegisterAdapter, 'push')
+    sell_products = mocker.spy(adapters.printers.SaremaX1, 'sell_products')
+    send = mocker.spy(adapters.printers.SaremaX1, 'send')
     # create some products
     products = mommy.make(Product, _quantity=2)
     # sold products
@@ -91,9 +91,10 @@ def test_receipt_post_without_print(alice_client, mocker):
     endpoint = reverse('registers:receipt-list')
     response = alice_client.post(endpoint, data=sold_items)
     # the receipt has been created through the ``ReceiptSerializer``
+    # without printing the receipt
     assert response.status_code == 201
-    assert convert_serializer.call_count == 0
-    assert print_receipt.call_count == 0
+    assert sell_products.call_count == 0
+    assert send.call_count == 0
 
 
 @pytest.mark.django_db

@@ -107,6 +107,11 @@ USE_TZ = True
 # application design must be updated
 CURRENCIES = ('EUR',)
 
+# list of Adapters that are used to push data to third party services
+PUSH_ADAPTERS = [
+    'registers.adapters.printers.CashRegisterAdapter',
+]
+
 # cash register settings
 REGISTER_PRINT = env('DJANGO_REGISTER_PRINT', False)
 REGISTER_NAME = env('DJANGO_REGISTER_NAME', 'Shop')

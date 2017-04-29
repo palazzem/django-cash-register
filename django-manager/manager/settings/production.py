@@ -6,9 +6,6 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_SSL_REDIRECT = env('DJANGO_SECURE_SSL_REDIRECT', True)
 SESSION_COOKIE_SECURE = env('DJANGO_SESSION_COOKIE_SECURE', True)
 
-# cash register settings
-REGISTER_PRINT = env('DJANGO_REGISTER_PRINT', True)
-
 # static files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 

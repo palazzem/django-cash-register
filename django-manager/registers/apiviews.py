@@ -7,7 +7,6 @@ from rest_framework.permissions import IsAdminUser
 from .models import Product, Receipt
 from .receipts import convert_serializer
 from .serializers import ProductSerializer, ReceiptSerializer
-from .adapters.printers import CashRegisterAdapter
 
 
 class ProductViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -48,9 +47,7 @@ class ReceiptViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
             # create the ``Receipt`` model, honoring the ManyToMany
             serializer.save()
 
-            if settings.REGISTER_PRINT:
-                # convert serializer validated_data and send it
-                # to the cash register printer
-                data = convert_serializer(serializer)
-                adapter = CashRegisterAdapter()
-                adapter.push(data)
+            # push items list to external services
+            items = convert_serializer(serializer)
+            for adapter in settings.PUSH_ADAPTERS:
+                adapter.push(items)
