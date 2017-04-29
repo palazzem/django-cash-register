@@ -4,6 +4,18 @@ from django.contrib import admin
 from .models import Product, Receipt, Sell
 
 
+def backfill(modeladmin, request, queryset):
+    """
+    Re-launch the adapters for the given `Receipt`
+    queryset.
+    """
+    for receipt in queryset:
+        for adapter in settings.PUSH_ADAPTERS:
+            # re-push data
+            adapter.push(receipt)
+backfill.short_description = 'Backfill data using Adapters'  # noqa
+
+
 class SellInline(admin.TabularInline):
     model = Sell
     extra = 1
@@ -11,6 +23,8 @@ class SellInline(admin.TabularInline):
 
 @admin.register(Receipt)
 class ReceiptAdmin(admin.ModelAdmin):
+    actions = [backfill]
+    ordering = ['-date']
     inlines = [
         SellInline,
     ]
