@@ -9,30 +9,26 @@ from model_mommy import mommy
 
 from django.core.urlresolvers import reverse
 
-from serial import SerialException
-
-from registers import apiviews
 from registers.models import Product, Receipt
 from registers.receipts import convert_serializer
+from registers.exceptions import CashRegisterNotReady
 from registers.serializers import ReceiptSerializer
 
 
 @pytest.mark.django_db
-def test_receipt_post_print(alice_client, mocker, settings):
+def test_endpoint_calls_adapters(alice_client, mocker, settings):
     """
-    Ensure that a POST on the receipt endpoint prints a receipt
-    through the connected cash register.
+    Ensure that a POST on the receipt endpoint calls all registered
+    adapters:
         * create two products
         * prepare a payload with 2 sold items
         * POST the message
-        * expect that the receipt is printed
+        * expect that the Adapter.push() is executed
     """
-    # force the print
-    settings.REGISTER_PRINT = True
-    # spy third party libraries and mock the serial port
-    mocker.patch('registers.receipts.Serial')
-    convert_serializer = mocker.spy(apiviews, 'convert_serializer')
-    print_receipt = mocker.spy(apiviews, 'print_receipt')
+    # prepare mock adapters
+    adapter_1 = mocker.Mock()
+    adapter_2 = mocker.Mock()
+    settings.PUSH_ADAPTERS = [adapter_1, adapter_2]
     # create some products
     products = mommy.make(Product, _quantity=2)
     # sold products
@@ -54,66 +50,34 @@ def test_receipt_post_print(alice_client, mocker, settings):
     response = alice_client.post(endpoint, data=sold_items)
     # the receipt has been created through the ``ReceiptSerializer``
     assert response.status_code == 201
-    assert convert_serializer.call_count == 1
-    assert print_receipt.call_count == 1
+    assert adapter_1.push.call_count == 1
+    assert adapter_2.push.call_count == 1
+    # check the given payload
+    args, _ = adapter_1.push.call_args_list[0]
+    items = args[0]
+    assert items[0]['description'] == products[0].name
+    assert items[1]['description'] == products[1].name
+    assert items[0]['price'] == '5.90'
+    assert items[1]['price'] == '2.00'
 
 
 @pytest.mark.django_db
-def test_receipt_post_without_print(alice_client, mocker):
+def test_receipt_post_rollback_on_adapters_errors(alice_client, mocker, settings):
     """
-    Ensure that a POST on the receipt endpoint doesn't print a receipt
-    if an internal Django settings is set to stop this action.
-        * create two products
-        * prepare a payload with 2 sold items
-        * POST the message
-        * expect that the receipt is not printed
-    """
-    # mock third party libraries
-    convert_serializer = mocker.patch('registers.apiviews.convert_serializer')
-    print_receipt = mocker.patch('registers.apiviews.print_receipt')
-    # create some products
-    products = mommy.make(Product, _quantity=2)
-    # sold products
-    sold_items = {
-        'products': [
-            {
-                'id': products[0].id,
-                'price': '5.90',
-            },
-            {
-                'id': products[1].id,
-                'price': '2.00',
-                'quantity': '2.0',
-            },
-        ]
-    }
-    # get the receipts endpoint
-    endpoint = reverse('registers:receipt-list')
-    response = alice_client.post(endpoint, data=sold_items)
-    # the receipt has been created through the ``ReceiptSerializer``
-    assert response.status_code == 201
-    assert convert_serializer.call_count == 0
-    assert print_receipt.call_count == 0
-
-
-@pytest.mark.django_db
-def test_receipt_post_rollback_on_print_errors(alice_client, mocker, settings):
-    """
-    Ensure that a POST on the receipt endpoint prints a receipt
-    through the connected cash register. This test doesn't check
-    the validity of the ViewSet / Serializer but only assert
-    that the python-cash-register integration works properly.
+    Ensure that a POST on the receipt endpoint executes a rollback
+    if an internal error happens during adapters execution.
         * create two products
         * prepare a payload with 2 sold items
         * POST the message
         * expect that an exception is raised and that the database
           did a rollback
     """
-    # force the print
-    settings.REGISTER_PRINT = True
-    # simulate a serial exception
-    mock_serial = mocker.patch('registers.receipts.Serial')
-    mock_serial.side_effect = SerialException
+    # prepare mock adapters
+    adapter_1 = mocker.Mock()
+    adapter_2 = mocker.Mock()
+    settings.PUSH_ADAPTERS = [adapter_1, adapter_2]
+    # simulate an exception
+    adapter_2.push.side_effect = CashRegisterNotReady
     # create some products
     products = mommy.make(Product, _quantity=3)
     # sold products
@@ -151,7 +115,7 @@ def test_convert_serializer():
     """
     Test the ``convert_serializer`` method so that for the given
     ``ReceiptSerializer`` it returns a list of sold items that must
-    be printed.
+    be sent to the push adapters.
     """
     # create a list of products
     products = mommy.make(Product, _quantity=3)
