@@ -9,6 +9,7 @@ psycopg2
 pytz
 
 # third-party
+datadog
 pillow
 pyserial
 python-cash-register

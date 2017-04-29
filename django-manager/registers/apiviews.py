@@ -5,7 +5,6 @@ from rest_framework import mixins, viewsets
 from rest_framework.permissions import IsAdminUser
 
 from .models import Product, Receipt
-from .receipts import convert_serializer
 from .serializers import ProductSerializer, ReceiptSerializer
 
 
@@ -44,11 +43,8 @@ class ReceiptViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
         """
         with transaction.atomic():
             # create the ``Receipt`` model, honoring the ManyToMany
-            serializer.save()
-
-            # push items list to external components
-            items = convert_serializer(serializer)
+            receipt = serializer.save()
             for adapter in settings.PUSH_ADAPTERS:
                 # TODO: when an adapter is executed, we may store the
                 # execution so that it is not executed twice
-                adapter.push(items)
+                adapter.push(receipt)

@@ -54,11 +54,12 @@ def test_endpoint_calls_adapters(alice_client, mocker, settings):
     assert adapter_2.push.call_count == 1
     # check the given payload
     args, _ = adapter_1.push.call_args_list[0]
-    items = args[0]
-    assert items[0]['description'] == products[0].name
-    assert items[1]['description'] == products[1].name
-    assert items[0]['price'] == '5.90'
-    assert items[1]['price'] == '2.00'
+    receipt = args[0]
+    items = receipt.sell_set.all()
+    assert items[0].product.name == products[0].name
+    assert items[1].product.name == products[1].name
+    assert float(items[0].price.amount) == 5.9
+    assert float(items[1].price.amount) == 2.0
 
 
 @pytest.mark.django_db
