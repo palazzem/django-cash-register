@@ -9,6 +9,7 @@ from registers.serializers import ProductSerializer, ReceiptItemSerializer, Rece
 
 
 class TestProduct:
+    @pytest.mark.django_db
     def test_serializer(self, temp_image):
         """
         Test the ``Product`` serializer
@@ -25,6 +26,7 @@ class TestProduct:
         serializer = ProductSerializer(data=product)
         assert serializer.is_valid() is True
 
+    @pytest.mark.django_db
     def test_optional_fields(self):
         """
         Test the ``Product`` serializer optinal fields:

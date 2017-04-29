@@ -45,7 +45,9 @@ INSTALLED_APPS = (
 
     # current application
     'registers',
-    'pos',
+
+    # TODO: interactive POS is disable because incomplete
+    # 'pos',
 )
 
 MIDDLEWARE_CLASSES = [

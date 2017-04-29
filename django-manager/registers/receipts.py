@@ -1,4 +1,7 @@
+import pytz
+
 from decimal import Decimal as D
+from datetime import datetime
 
 
 # same as Decimal('0.01')
@@ -32,3 +35,10 @@ def convert_serializer(serializer):
 
         items.append(row)
     return items
+
+
+def timezone_now():
+    """
+    Return a timezone aware now() DateTime object.
+    """
+    return datetime.now(pytz.utc)
