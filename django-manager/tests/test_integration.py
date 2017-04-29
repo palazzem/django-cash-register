@@ -11,7 +11,7 @@ from django.core.urlresolvers import reverse
 
 from serial import SerialException
 
-from registers import apiviews
+from registers import apiviews, adapters
 from registers.models import Product, Receipt
 from registers.receipts import convert_serializer
 from registers.serializers import ReceiptSerializer
@@ -30,9 +30,9 @@ def test_receipt_post_print(alice_client, mocker, settings):
     # force the print
     settings.REGISTER_PRINT = True
     # spy third party libraries and mock the serial port
-    mocker.patch('registers.receipts.Serial')
+    mocker.patch('registers.adapters.printers.Serial')
     convert_serializer = mocker.spy(apiviews, 'convert_serializer')
-    print_receipt = mocker.spy(apiviews, 'print_receipt')
+    print_receipt = mocker.spy(adapters.printers.CashRegisterAdapter, 'push')
     # create some products
     products = mommy.make(Product, _quantity=2)
     # sold products
@@ -70,7 +70,7 @@ def test_receipt_post_without_print(alice_client, mocker):
     """
     # mock third party libraries
     convert_serializer = mocker.patch('registers.apiviews.convert_serializer')
-    print_receipt = mocker.patch('registers.apiviews.print_receipt')
+    print_receipt = mocker.spy(adapters.printers.CashRegisterAdapter, 'push')
     # create some products
     products = mommy.make(Product, _quantity=2)
     # sold products
@@ -112,7 +112,7 @@ def test_receipt_post_rollback_on_print_errors(alice_client, mocker, settings):
     # force the print
     settings.REGISTER_PRINT = True
     # simulate a serial exception
-    mock_serial = mocker.patch('registers.receipts.Serial')
+    mock_serial = mocker.patch('registers.adapters.printers.Serial')
     mock_serial.side_effect = SerialException
     # create some products
     products = mommy.make(Product, _quantity=3)

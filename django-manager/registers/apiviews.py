@@ -1,15 +1,13 @@
 from django.db import transaction
 from django.conf import settings
 
-from serial import SerialException
-
 from rest_framework import mixins, viewsets
 from rest_framework.permissions import IsAdminUser
 
 from .models import Product, Receipt
-from .receipts import convert_serializer, print_receipt
-from .exceptions import CashRegisterNotReady
+from .receipts import convert_serializer
 from .serializers import ProductSerializer, ReceiptSerializer
+from .adapters.printers import CashRegisterAdapter
 
 
 class ProductViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -46,15 +44,13 @@ class ReceiptViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
         in a real world example, ``False`` must be used only for development
         mode.
         """
-        try:
-            with transaction.atomic():
-                # create the ``Receipt`` model, honoring the ManyToMany
-                serializer.save()
+        with transaction.atomic():
+            # create the ``Receipt`` model, honoring the ManyToMany
+            serializer.save()
 
-                if settings.REGISTER_PRINT:
-                    # convert serializer validated_data and send it
-                    # to the cash register printer
-                    data = convert_serializer(serializer)
-                    print_receipt(data)
-        except SerialException:
-            raise CashRegisterNotReady
+            if settings.REGISTER_PRINT:
+                # convert serializer validated_data and send it
+                # to the cash register printer
+                data = convert_serializer(serializer)
+                adapter = CashRegisterAdapter()
+                adapter.push(data)
