@@ -4,6 +4,8 @@ from django.utils import formats
 
 from djmoney.models.fields import MoneyField
 
+from .receipts import timezone_now
+
 
 class Product(models.Model):
     """
@@ -29,7 +31,7 @@ class Receipt(models.Model):
     ``Receipt`` model that aggregates a set of products and that
     creates the proper commands to print the ``Receipt``.
     """
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.DateTimeField(default=timezone_now, blank=True)
     products = models.ManyToManyField('Product', through='Sell', related_name='receipts')
 
     def __str__(self):
