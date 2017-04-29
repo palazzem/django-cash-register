@@ -29,7 +29,7 @@ LOGGING['loggers'] = {
         'level': env('DJANGO_LOG_LEVEL', 'INFO'),
     },
     'manager': {
-        'handlers': ['logstash', 'syslog'],
+        'handlers': ['console', 'syslog'],
         'level': env('MANAGER_LOG_LEVEL', 'INFO'),
     },
 }

@@ -22,8 +22,5 @@ pytest-cov
 model-mommy
 flake8
 
-# logging
-python-logstash
-
 # monitoring
 raven

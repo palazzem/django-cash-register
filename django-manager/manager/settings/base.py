@@ -125,13 +125,8 @@ MEDIA_ROOT = os.path.join(ASSETS_ROOT, 'media')
 
 # emails
 DEFAULT_FROM_EMAIL = env('DJANGO_FROM_EMAIL')
-
 EMAIL_BACKEND_DEFAULT = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_BACKEND = env('DJANGO_EMAIL_BACKEND', EMAIL_BACKEND_DEFAULT)
-
-# logging
-LOGSTASH_HOST = env('LOGSTASH_HOST', '127.0.0.1')
-LOGSTASH_PORT = env('LOGSTASH_PORT', 5000)
 
 LOGGING = {
     'version': 1,
@@ -155,13 +150,6 @@ LOGGING = {
         'syslog': {
             'class': 'logging.handlers.SysLogHandler',
             'formatter': 'syslog',
-        },
-        'logstash': {
-            'class': 'logstash.LogstashHandler',
-            'host': LOGSTASH_HOST,
-            'port': LOGSTASH_PORT,
-            'version': 1,
-            'message_type': 'manager',
         },
     },
 }
